@@ -67,6 +67,7 @@ export default {
           password: this.ruleForm.password
         })
         this.$message.success('登录成功')
+        console.log(res)
         // 将 token 值保存在浏览器中
         window.sessionStorage.setItem('token', res.data.token)
         // 跳转到主页
