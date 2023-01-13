@@ -23,3 +23,27 @@ export const ChangeUser = (params) => request.put('users/' + params.id, params)
 
 // 删除用户
 export const DeletUser = (id) => request.delete('users/' + id)
+
+// 权限列表
+export const RightsList = () => request.get('rights/list')
+
+// 角色列表
+export const RolesList = () => request.get('roles')
+
+// 查询角色
+export const RolesQuery = (id) => request.get('roles/' + id)
+
+// 编辑角色
+export const RolesRevise = (params) => request.put('roles/' + params.roleId, params)
+
+// 删除角色
+export const RolesDelete = (id) => request.delete('roles/' + id)
+
+// 添加角色
+export const RolesAdd = (params) => request.post('roles', params)
+
+// 删除角色指定权限
+export const RolesDeleteRight = (role, rightId) => request.delete('roles/' + role.id + '/rights/' + rightId)
+
+// 分配用户角色
+export const RolesSave = (id, params) => request.put('users/' + id + '/role', params)
