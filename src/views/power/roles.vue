@@ -48,13 +48,13 @@
           <template slot-scope="scope">
             <el-button size="mini" type="primary" icon="el-icon-edit" @click="reviseRoles(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="danger" icon="el-icon-delete" @click="deleteRoles(scope.row.id)">删除</el-button>
-            <el-button size="mini" type="warning" icon="el-icon-setting">分配权限</el-button>
+            <el-button size="mini" type="warning" icon="el-icon-setting" @click="setRoles(scope.row)">分配权限</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
     <!-- 编辑角色对话框 -->
-    <el-dialog title="提示" :visible.sync="reviseVisible" width="30%" @close="reviseDialogClosed">
+    <el-dialog title="编辑角色" :visible.sync="reviseVisible" width="30%" @close="reviseDialogClosed">
       <el-form :model="reviseForm" ref="reviseRolesRef" label-width="100px" class="demo-ruleForm">
         <el-form-item label="角色名称">
           <el-input v-model="reviseForm.roleName" disabled></el-input>
@@ -69,7 +69,7 @@
       </span>
     </el-dialog>
     <!-- 添加角色对话框 -->
-    <el-dialog title="提示" :visible.sync="addVisible" width="30%" @close="addDialogClosed">
+    <el-dialog title="添加角色" :visible.sync="addVisible" width="30%" @close="addDialogClosed">
       <el-form :model="addForm" ref="addRolesRef" label-width="80px">
         <el-form-item label="角色名字">
           <el-input v-model="addForm.roleName"></el-input>
@@ -83,11 +83,19 @@
         <el-button type="primary" @click="trueAddRoles">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 分配权限对话框 -->
+    <el-dialog title="分配权限" :visible.sync="setVisible" width="50%" @close="setDialogClosed">
+      <el-tree ref="setRightsFef" :data="rightsList" show-checkbox node-key="id" :props="rightsListProps" default-expand-all :default-checked-keys="keyList"></el-tree>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setVisible = false">取 消</el-button>
+        <el-button type="primary" @click="trueSetRoles">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { RolesList, RolesQuery, RolesRevise, RolesDelete, RolesAdd, RolesDeleteRight } from '@/utils/api'
+import { RolesList, RolesQuery, RolesRevise, RolesDelete, RolesAdd, RolesDeleteRight, RightsTree, RightsSave } from '@/utils/api'
 export default {
   name,
   data() {
@@ -107,7 +115,18 @@ export default {
       addForm: {
         roleDesc: '',
         roleName: ''
-      }
+      },
+      rightsList: [],
+      // 是否显示分配权限对话框
+      setVisible: false,
+      rightsListProps: {
+        children: 'children',
+        label: 'authName'
+      },
+      // 默认勾选的节点的 key 的数组
+      keyList: [],
+      // 正在操作用户的id
+      roleId: ''
     }
   },
   created() {
@@ -190,6 +209,50 @@ export default {
         this.$message.success('删除权限成功')
         role.children = res.data
       }
+    },
+    // 分配权限
+    async setRoles(row) {
+      // 保存正在操作用户的id
+      this.roleId = row.id
+      const { data: res } = await RightsTree()
+      if (res.meta.status !== 200) return this.$message.error('获取权限失败')
+      this.rightsList = res.data
+      // 调用递归函数
+      this.getLeafKeys(row, this.keyList)
+      // 展示对话框
+      this.setVisible = true
+    },
+    // 递归函数
+    getLeafKeys(row, arr) {
+      // 如果没有 children 属性说明已经是第三权限
+      if (!row.children) {
+        // 把当前的权限添加到数组里面
+        return arr.push(row.id)
+      }
+      // 如果有 children 属性就继续遍历
+      row.children.forEach((item) => {
+        this.getLeafKeys(item, arr)
+      })
+    },
+    // 关闭分配权限对话框时触发
+    setDialogClosed() {
+      // 清空默认展示节点数组
+      this.keyList = []
+    },
+    // 确认分配权限
+    async trueSetRoles() {
+      // 获取半选和全选的 id
+      const id = [...this.$refs.setRightsFef.getHalfCheckedKeys(), ...this.$refs.setRightsFef.getCheckedKeys()]
+      // 转换成字符串
+      const idStr = String(id)
+      const { data: res } = await RightsSave(this.roleId, {
+        rids: idStr
+      })
+      if (res.meta.status !== 200) return this.$message.error('分配权限失败')
+      this.$message.success('分配权限成功')
+      this.getRolesList()
+      // 关闭对话框
+      this.setVisible = false
     }
   }
 }

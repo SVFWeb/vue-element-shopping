@@ -24,7 +24,7 @@ export const ChangeUser = (params) => request.put('users/' + params.id, params)
 // 删除用户
 export const DeletUser = (id) => request.delete('users/' + id)
 
-// 权限列表
+// 权限列表 列表型
 export const RightsList = () => request.get('rights/list')
 
 // 角色列表
@@ -47,3 +47,9 @@ export const RolesDeleteRight = (role, rightId) => request.delete('roles/' + rol
 
 // 分配用户角色
 export const RolesSave = (id, params) => request.put('users/' + id + '/role', params)
+
+// 权限列表 树状型
+export const RightsTree = () => request.get('rights/tree')
+
+// 分配权限
+export const RightsSave = (id, params) => request.post('roles/' + id + '/rights', params)
