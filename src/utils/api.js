@@ -55,7 +55,13 @@ export const RightsTree = () => request.get('rights/tree')
 export const RightsSave = (id, params) => request.post('roles/' + id + '/rights', params)
 
 // 商品分类数据
-export const GoodsList = (params) => request.get('categories', { params })
+export const CateList = (params) => request.get('categories', { params })
 
 // 添加商品分类
-export const GoodsAdd = (params) => request.post('categories', params)
+export const CateAdd = (params) => request.post('categories', params)
+
+// 删除商品分类
+export const CateDelete = (id) => request.delete('categories/' + id)
+
+// 编辑商品分类
+export const CateEdit = (id, params) => request.put('categories/' + id, params)

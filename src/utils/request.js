@@ -7,6 +7,7 @@ const request = axios.create({
 // axios 请求拦截器 每次发送请求前会先触发 use 回调函数进行预处理
 request.interceptors.request.use((config) => {
   config.headers.Authorization = window.sessionStorage.getItem('token')
+  console.log(config)
   return config
 })
 
