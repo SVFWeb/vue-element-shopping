@@ -53,3 +53,9 @@ export const RightsTree = () => request.get('rights/tree')
 
 // 分配权限
 export const RightsSave = (id, params) => request.post('roles/' + id + '/rights', params)
+
+// 商品分类数据
+export const GoodsList = (params) => request.get('categories', { params })
+
+// 添加商品分类
+export const GoodsAdd = (params) => request.post('categories', params)
